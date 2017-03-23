@@ -28,13 +28,30 @@ function viewGameStats(state) {
     <div>
         <h2>Game Stats</h2>
 
-        ${viewWinrates('Ian', state)}
-        ${viewCharacterUsage('Ian', state)}
+        ${viewPlayerStats('Ian', state)}
+        ${viewPlayerStats('Dave', state)}
     </div>
     `
 }
 
-function viewWinrates(playerName, state) {
+function viewPlayerStats(playerName, state) {
+    return `
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">Player Stats: ${playerName}</h3>
+        </div>
+        <div class="panel-body">
+            ${viewOverallWinrate(playerName, state)}
+            <div class="well">
+                <h4>Character Usage</h4>
+                ${viewCharacterUsage(playerName, state)}
+            </div>
+        </div>
+    </div>
+    `
+}
+
+function viewOverallWinrate(playerName, state) {
     const winsByPlayer = state.gameRecords.reduce((wins, record) => {
         wins[record.winner] = (wins[record.winner] || 0) + 1;
         return wins;
@@ -47,6 +64,7 @@ function viewWinrates(playerName, state) {
     }, {})
 
     return `
+    <h4>Overall Winrate</h4>
     <div class="progress">
       <div class="progress-bar" role="progressbar" style="width: ${winratesByPlayer[playerName]}%;">
         ${winratesByPlayer[playerName]}% (${winsByPlayer[playerName]} W / ${state.gameRecords.length - winsByPlayer[playerName]} L)
@@ -56,38 +74,53 @@ function viewWinrates(playerName, state) {
 }
 
 function viewCharacterUsage(playerName, state) {
-    const charUsageByPlayer = state.gameRecords.reduce((charUsage, record) => {
-        const { players } = record;
-        charUsage[playerName] = charUsage[playerName] || {};
+    const playerRecords = state.gameRecords
+        .filter(record => record.players.some(player => player.name == playerName));
+    const charUsage = CHARACTERS.map(character => {
+        return {
+            character,
+            wins: playerRecords.reduce((count, record) => {
+                const playerCharacter = record.players.find(player => player.name == playerName).character;
+                return playerCharacter == character && playerName == record.winner
+                    ? count + 1
+                    : count
+            }, 0),
+            losses: playerRecords.reduce((count, record) => {
+                const playerCharacter = record.players.find(player => player.name == playerName).character;
+                return playerCharacter == character && playerName != record.winner
+                    ? count + 1
+                    : count
+            }, 0)
+        }
+    })
 
-        const { character } = players.find(player => player.name == playerName);
-        charUsage[playerName][character] = (charUsage[playerName][character] || 0) + 1;
-
-        return charUsage;
-    }, {});
-
-    console.log(charUsageByPlayer);
-
-    return Object.keys(charUsageByPlayer[playerName]).map(character => {
-        const usageCountByCharacter = charUsageByPlayer[playerName][character]
-
-        return viewCharacterUsageRow(character, usageCountByCharacter, state.gameRecords.length);
-    }).join('')
-
+    return charUsage
+        .sort((a, b) => {
+            const aTotal = a.wins + a.losses;
+            const bTotal = b.wins + b.losses;
+            if (aTotal < bTotal || (aTotal === bTotal && a.wins < b.wins)) return 1;
+            if (aTotal > bTotal) return -1;
+            if (aTotal === bTotal) return 0;
+        })
+        .map(({ character, wins, losses }) =>
+            viewCharacterUsageRow(character, wins, losses, state.gameRecords.length)
+        ).join('');
 }
 
-function viewCharacterUsageRow(character, usage, totalGames) {
-    const usageRate = (usage / totalGames * 100).toFixed(2);
+function viewCharacterUsageRow(character, wins, losses, totalGames) {
+    const winRate = (wins / totalGames * 100).toFixed(2);
+    const lossRate = (losses / totalGames * 100).toFixed(2);
 
-     //       <div class="progress-bar progress-bar-success" style="width: 35%">
-     //   </div>
-     //   <div class="progress-bar progress-bar-danger" style="width: 10%">
-     //   </div>
+    if (!(wins + losses)) return '';
 
     return `
+    <h5>${character}</h5>
     <div class="progress">
-      <div class="progress-bar" role="progressbar" style="width: ${usageRate}%;">
-        ${character} (${usage} / ${totalGames})
+      <div class="progress-bar progress-bar-success" style="width: ${winRate}%">
+        (${wins} W / ${totalGames})
+      </div>
+      <div class="progress-bar progress-bar-danger" style="width: ${lossRate}%">
+        (${losses} L / ${totalGames})
       </div>
     </div>
     `
