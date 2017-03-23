@@ -1,0 +1,50 @@
+
+<!DOCTYPE html>
+<head>
+<title>chips</title>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<style>
+
+.label-purple {
+    background-color: purple;
+}
+
+.label-gold {
+    background-color: gold;
+}
+
+.hot {
+  cursor:pointer;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <div class="row">
+        <div class="col-xs-12">
+            <header><h1>chips</h1></header>
+            <div id="main">
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+
+<script src="https://www.gstatic.com/firebasejs/3.7.3/firebase.js"></script>
+<script>
+  // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyCQInQ2oazXNOnoRuVXnrA10vYY33EDx8o",
+    authDomain: "masterpuzzlestrike.firebaseapp.com",
+    databaseURL: "https://masterpuzzlestrike.firebaseio.com",
+    storageBucket: "masterpuzzlestrike.appspot.com",
+    messagingSenderId: "180796761657"
+  };
+  firebase.initializeApp(config);
+</script>
+<script type="text/javascript" src="app.js"></script>
+</script>
