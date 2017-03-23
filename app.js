@@ -320,31 +320,37 @@ function viewGameSetup(state) {
     `
 }
 
-function viewPreviousGameResults(state) {
+function viewNewGame(state) {
+    if (state.gameInSetup || state.gameInProgress) return '';
+
+    return `
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">Set Up a New Game</h3>
+        </div>
+        <div class="panel-body">
+            ${viewSeriesPrompt(state)}
+            ${viewNewGamePrompt(state)}
+        </div>
+    </div>
+    `;
+}
+
+function viewSeriesPrompt(state) {
     if (!state.gameRecords.length) return '';
 
     const previousGameRecord = state.gameRecords[state.gameRecords.length - 1];
     const winner = previousGameRecord.players.find(player => player.name == previousGameRecord.winner);
     return `
-        <div class="alert alert-info" role="alert">
-            ${previousGameRecord.winner} won the last time, with ${winner.character}.
-            <br>
-            Want to continue this series? (winner uses same character, and chooses 1 bank swap)
-            <br>
-            <button type=button class="btn btn-success" onclick="App.continueSeries()">Continue Series</button>
-        </div>
+        ${previousGameRecord.winner} won the last time, with ${winner.character}.
+        <br>
+        Want to continue this series? (winner uses same character, and chooses 1 bank swap)
+        <br>
+        <button type=button class="btn btn-success" onclick="App.continueSeries()">Continue Series</button>
     `
 }
 
-function viewNewGame(state) {
-    if (state.gameInSetup || state.gameInProgress) return '';
-    return `
-        ${viewPreviousGameResults(state)}
-        ${viewNewGameButton(state)}
-    `;
-}
-
-function viewNewGameButton(state) {
+function viewNewGamePrompt(state) {
     return `<button type=button class="btn btn-success" onclick="App.setupNewGame()">New Game</button>`
 }
 
@@ -377,10 +383,12 @@ function viewBankSwapRemoval(state) {
 function viewBankSwapReplacement(state) {
     if (!state.removedBankStack) return '';
 
-    const restOfTheBank = BANK.filter(chip =>
-        chip.name != state.removedBankStack.name
-        && !state.currentBank.includes(chip.name)
-    )
+    const restOfTheBank = BANK.filter(boxedBankChip =>
+        boxedBankChip.name != state.removedBankStack.name
+        && !state.currentBank.some(prevBankChip => prevBankChip.name == boxedBankChip.name)
+    );
+
+    console.log(restOfTheBank);
 
     return `
     <h3>Remaining Bank:</h3>
