@@ -66,7 +66,7 @@ const BANK = [
     {
         name: 'One True Style',
         cost: 3,
-        color: RED
+        color: PURPLE
     },
     {
         name: 'Risk to Riskonade',
@@ -151,6 +151,7 @@ const CHARACTERS = [
 (function(App) {
 
     let state = {
+        gameInSetup: false,
         gameInProgress: false,
         reselectBank: false,
         removedBankStack: null,
@@ -159,8 +160,8 @@ const CHARACTERS = [
         gameRecords: []
     };
 
-    App.startNewGame = () => {
-        state.gameInProgress = true;
+    App.setupNewGame = () => {
+        state.gameInSetup = true;
         state.currentBank = getRandomBank();
         state.currentPlayers = [
             makePlayer('Ian', null),
@@ -172,12 +173,20 @@ const CHARACTERS = [
     App.pickCharacter = (playerName, character) => {
         state.currentPlayers = state.currentPlayers
             .map(player => player.name == playerName ? makePlayer(playerName, character) : player)
+
+        if (state.currentPlayers.every(player => player.character)
+            && state.currentBank.length == 10) {
+            state.gameInSetup = false;
+            state.gameInProgress = true;
+        }
+
         App.view();
     }
 
     App.continueSeries = () => {
-        state.gameInProgress = true;
+        state.gameInSetup = true;
         state.reselectBank = true;
+        state.reselectedBank = false;
 
         const previousGameRecord = state.gameRecords[state.gameRecords.length - 1];
         const loserIndex = previousGameRecord.players.findIndex(player => player.name != previousGameRecord.winner);
@@ -190,12 +199,32 @@ const CHARACTERS = [
     }
 
     App.chooseRemovedBankStack = (chipName) => {
-        console.log(chipName);
+        state.removedBankStack = BANK.find(chip => chip.name == chipName);
+
+        const i = state.currentBank.findIndex(chip => chip.name == chipName);
+        state.currentBank.splice(i, 1);
+
         App.view();
     }
 
     App.chooseReplacementBankStack = (chipName) => {
-        console.log(chipName);
+        state.reselectBank = false;
+        state.reselectedBank = true;
+
+        state.removedBankStack = null;
+        state.currentBank.push(BANK.find(chip => chip.name == chipName));
+        state.currentBank.sort((a, b) => {
+            if (a.cost < b.cost) return -1;
+            if (a.cost > b.cost) return 1;
+            if (a.cost == b.cost) return 0;
+        });
+
+        if (state.currentPlayers.every(player => player.character)
+            && state.currentBank.length == 10) {
+            state.gameInSetup = false;
+            state.gameInProgress = true;
+        }
+
         App.view();
     }
 
@@ -213,6 +242,7 @@ const CHARACTERS = [
     }
 
     App.view = () => {
+        console.log('updating view', state);
         const main = document.getElementById('main');
         const html = viewMain(state);
         main.innerHTML = html;
@@ -268,6 +298,8 @@ function makePlayer(name, character) {
  ************************************/
 function viewMain(state) {
     return `
+        ${viewNewGame(state)}
+
         ${viewGameSetup(state)}
 
         ${viewCurrentGame(state)}
@@ -278,19 +310,18 @@ function viewMain(state) {
 
 /************ GAME SETUP *************/
 function viewGameSetup(state) {
+    if (!state.gameInSetup) return '';
+
     return `
-        ${viewPreviousGameResults(state)}
-
-        ${viewNewGameButton(state)}
-
-        ${viewBankSwapSelection(state)}
+        <h3>Bank</h3>
+        ${viewBankSwap(state)}
 
         ${viewCharacterSelection(state)}
     `
 }
 
 function viewPreviousGameResults(state) {
-    if (!state.gameRecords.length || state.reselectBank) return '';
+    if (!state.gameRecords.length) return '';
 
     const previousGameRecord = state.gameRecords[state.gameRecords.length - 1];
     const winner = previousGameRecord.players.find(player => player.name == previousGameRecord.winner);
@@ -305,20 +336,60 @@ function viewPreviousGameResults(state) {
     `
 }
 
-function viewNewGameButton(state) {
-    if (state.gameInProgress) return '';
-    return `<button type=button class="btn btn-success" onclick="App.startNewGame()">New Game</button>`
+function viewNewGame(state) {
+    if (state.gameInSetup || state.gameInProgress) return '';
+    return `
+        ${viewPreviousGameResults(state)}
+        ${viewNewGameButton(state)}
+    `;
 }
 
-function viewBankSwapSelection(state) {
-    if (!state.reselectBank) return '';
+function viewNewGameButton(state) {
+    return `<button type=button class="btn btn-success" onclick="App.setupNewGame()">New Game</button>`
+}
+
+function viewBankSwap(state) {
+    if (!state.reselectBank) return viewBank(state.currentBank);
+
+    return `
+    <div class="well">
+        ${viewBankSwapRemoval(state)}
+        ${viewBankSwapReplacement(state)}
+    </div>
+    `
+}
+
+function viewBankSwapRemoval(state) {
+    if (state.removedBankStack) return '';
 
     return `
     <h3>Choose a bank stack to swap out:</h3>
     <ul class="list-inline">
         ${state.currentBank.map(chip =>
             `<li class="hot" onclick="App.chooseRemovedBankStack('${chip.name}')">
-                <button class="btn btn-default">${chip.name} (${chip.cost})</button>
+                <button class="btn btn-${chipClass(chip.color)}"">${chip.name} (${chip.cost})</button>
+            </li>`
+        ).join('')}
+    </ul>
+    `
+}
+
+function viewBankSwapReplacement(state) {
+    if (!state.removedBankStack) return '';
+
+    const restOfTheBank = BANK.filter(chip =>
+        chip.name != state.removedBankStack.name
+        && !state.currentBank.includes(chip.name)
+    )
+
+    return `
+    <h3>Remaining Bank:</h3>
+    ${viewBank(state.currentBank)}
+    <h3>Choose a bank stack to replace ${state.removedBankStack.name} (${state.removedBankStack.cost}):</h3>
+    <ul class="list-inline">
+        ${restOfTheBank.map(chip =>
+            `<li class="hot" onclick="App.chooseReplacementBankStack('${chip.name}')">
+                <button class="btn btn-default btn-${chipClass(chip.color)}">${chip.name} (${chip.cost})</button>
             </li>`
         ).join('')}
     </ul>
@@ -326,25 +397,22 @@ function viewBankSwapSelection(state) {
 }
 
 function viewCharacterSelection(state) {
-    if (!state.gameInProgress) return '';
-
     return `
-        ${viewPlayerCharacterSelection(state.currentPlayers[0].name, state)}
-        ${viewPlayerCharacterSelection(state.currentPlayers[1].name, state)}
+        ${viewPlayerCharacterSelection(state.currentPlayers[0], state)}
+        ${viewPlayerCharacterSelection(state.currentPlayers[1], state)}
     `
 }
 
-function viewPlayerCharacterSelection(playerName, state) {
-    const player = state.currentPlayers.find(player => player.name == playerName);
-    const otherPlayer = state.currentPlayers.find(player => player.name != playerName);
+function viewPlayerCharacterSelection(player, state) {
+    const otherPlayer = state.currentPlayers.find(cplayer => player.name != cplayer.name);
 
     return `
     <div>
-        <h3>${playerName}</h3>
+        <h3>${player.name}</h3>
         ${player.character
             ? `<p>Playing: ${player.character}</p>`
             : CHARACTERS.filter(character => otherPlayer.character != character).map(character =>
-                `<button type=button class="btn btn-default" onclick="App.pickCharacter('${playerName}', '${character}')">
+                `<button type=button class="btn btn-default" onclick="App.pickCharacter('${player.name}', '${character}')">
                     ${character}
                 </button>`
             ).join('')
@@ -353,15 +421,32 @@ function viewPlayerCharacterSelection(playerName, state) {
 `
 }
 
+function viewCharacters(state) {
+    return `
+        ${viewPlayerCharacter(state.currentPlayers[0], state)}
+        ${viewPlayerCharacter(state.currentPlayers[1], state)}
+    `
+}
+
+function viewPlayerCharacter(player, state) {
+    return `
+    <div>
+        <h3>${player.name}</h3>
+        <p>Playing: ${player.character}</p>
+    </div>
+`
+}
+
 /************ CURRENT GAME *************/
 function viewCurrentGame(state) {
-    if (!state.gameInProgress || state.currentPlayers.some(player => !player.character)) return '';
+    if (!state.gameInProgress) return '';
 
     return `
     <div>
-
-        <h3>Bank</h3>
+        <h3>Bank:</h3>
         ${viewBank(state.currentBank)}
+
+        ${viewCharacters(state)}
 
         <button type=button class="btn btn-success" onclick="App.setWinner('${state.currentPlayers[0].name}')">
             ${state.currentPlayers[0].name} Won
@@ -377,7 +462,7 @@ function viewCurrentGame(state) {
 function viewBank(bank) {
     return `<ul class="list-inline">
         ${bank.map(chip =>
-            `<li><span class="label ${chipClass(chip.color)}">${chip.name} (${chip.cost})</span></li>`
+            `<li><span class="label label-${chipClass(chip.color)}">${chip.name} (${chip.cost})</span></li>`
         ).join('')}
     </ul>
     `
@@ -386,22 +471,22 @@ function viewBank(bank) {
 function chipClass(color) {
     switch (color) {
         case RED:
-            return 'label-danger'
+            return 'danger'
             break;
         case BLUE:
-            return 'label-primary'
+            return 'primary'
             break;
         case PURPLE:
-            return 'label-purple'
+            return 'purple'
             break;
         case BROWN:
-            return 'label-warning'
+            return 'warning'
             break;
         case MULTI:
-            return 'label-default'
+            return 'default'
             break;
         case GOLD:
-            return 'label-gold'
+            return 'gold'
             break;
         default:
     }
