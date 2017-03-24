@@ -1,11 +1,6 @@
-const RED = 'RED';
-const BLUE = 'BLUE';
-const PURPLE = 'PURPLE';
-const BROWN = 'BROWN';
-const MULTI = 'MULTI';
-const GOLD = 'GOLD';
+import { RED, BLUE, PURPLE, BROWN, MULTI, GOLD } from './colors';
 
-const BANK = [
+export const BANK = [
     {
         name: 'Just a Scratch',
         cost: 1,
@@ -128,7 +123,7 @@ const BANK = [
     },
 ];
 
-const CHARACTERS = [
+export const CHARACTERS = [
     'Beast Man',
     'Plague Lady',
     'Blitzcrank',
