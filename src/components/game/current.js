@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { Bank } from './setup';
+import { Bank } from '../bank';
 
 import { setWinner } from '../../actions';
 

@@ -2,8 +2,9 @@ import React from 'react';
 import { connect } from 'react-redux';
 
 // @todo commonize these locations
-import { Bank } from '../game/setup';
-import { pluralize, MicroGameSummary } from '../game/new';
+import { Bank } from '../bank';
+import { pluralize } from '../common';
+import { MicroGameSummary } from '../game/summary';
 
 import { CHARACTERS } from '../../gamedata';
 
@@ -97,18 +98,14 @@ function CharacterUsage({ playerName, records }) {
   const charUsages = CHARACTERS
     .map(character => ({
       character,
-      wins: playerRecords.reduce((count, record) => {
-        const playerCharacter = record.players.find(player => player.name === playerName).character;
-        return playerCharacter === character && playerName === record.winner
-                    ? count + 1
-                    : count
-      }, 0),
-      losses: playerRecords.reduce((count, record) => {
-        const playerCharacter = record.players.find(player => player.name === playerName).character;
-        return playerCharacter === character && playerName !== record.winner
-                    ? count + 1
-                    : count
-      }, 0)
+      wins: playerRecords.reduce(
+        (count, record) => wasWinnerAsCharacter(playerName, character, record) ? count + 1 : count,
+        0
+      ),
+      losses: playerRecords.reduce(
+        (count, record) => !wasWinnerAsCharacter(playerName, character, record) ? count + 1 : count,
+        0
+      )
     }))
     .sort((a, b) => {
       const aTotal = a.wins + a.losses;
@@ -135,6 +132,11 @@ function CharacterUsage({ playerName, records }) {
       ))}
     </div>
   )
+}
+
+function wasWinnerAsCharacter(playerName, character, record) {
+  const playerCharacter = record.players.find(player => player.name === playerName).character;
+  return playerCharacter === character && playerName === record.winner
 }
 
 function CharacterUsageRow({ character, wins, losses, maxCharacterGames }) {
