@@ -70,13 +70,13 @@ export function BankSwapReplacement(props) {
       <h3>Remaining Bank:</h3>
       <Bank bank={props.currentBank} />
       <h3>Choose a bank stack to replace {props.removedBankStack.name} ({props.removedBankStack.cost}):</h3>
-      <p><ul className="list-inline">
+      <ul className="list-inline">
         {restOfTheBank.map((chip, index) => (
           <li key={index} onClick={() => props.chooseReplacementBankStack(chip.name)}>
             <button className={`btn btn-default btn-${chipClass(chip.color)}`}>{chip.name} ({chip.cost})</button>
           </li>
         ))}
-      </ul></p>
+      </ul>
     </div>
   )
 }

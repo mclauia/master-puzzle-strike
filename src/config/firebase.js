@@ -19,7 +19,6 @@ const fireSeries = DB.ref(`${SERIES}/`);
 export function pushNewGameRecord(record) {
   const next = fireGames.push();
   const recordId = next.key;
-  console.log(recordId);
   const seriesId = record.seriesId
         ? addGameToSeries(record.seriesId, recordId)
         : pushNewSeries(recordId);
@@ -56,7 +55,7 @@ function pushNewSeries(recordId) {
 }
 
 function addGameToSeries(seriesId, recordId) {
-  const fireSeriesGames = DB.ref(`${SERIES}/${seriesId}/${GAMES}/`);
+  const fireSeriesGames = DB.ref(`${SERIES}/${seriesId}/games/`);
   const next = fireSeriesGames.push();
   next.set(recordId);
 

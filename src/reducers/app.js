@@ -98,8 +98,8 @@ export default function(state = INITIAL_STATE, action) {
         currentBank: [...state.currentBank, BANK.find(chip => chip.name === chipName)].sort(ascendingCost)
       }
 
-      if (state.currentPlayers.every(player => player.character)
-        && state.currentBank.length === 10) {
+      if (nextState.currentPlayers.every(player => player.character)
+        && nextState.currentBank.length === 10) {
         nextState.gameInSetup = false;
         nextState.gameInProgress = true;
       }
