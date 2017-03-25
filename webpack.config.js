@@ -12,7 +12,7 @@ var config = {
   devtool: 'source-map',
   target: 'web',
   entry: {
-    app: path.resolve(__dirname, './src/app.js'),
+    app: path.resolve(__dirname, './src/main.js'),
   },
   output: {
     path: path.resolve(__dirname, './assets/'),
@@ -29,17 +29,17 @@ var config = {
             loader: 'babel-loader',
             options: {
               presets: 'es2015',
-              plugins: ['transform-object-rest-spread']
+              plugins: ['transform-object-rest-spread', 'transform-react-jsx']
             }
           },
-          // {
-          //   loader: 'eslint-loader',
-          //   options: {
-          //       failOnWarning: false,
-          //       failOnError: false,
-          //       emitWarning: true,
-          //   }
-          // }
+          {
+            loader: 'eslint-loader',
+            options: {
+                failOnWarning: false,
+                failOnError: false,
+                emitWarning: true,
+            }
+          }
         ],
         include: path.resolve(__dirname, './src')
       },

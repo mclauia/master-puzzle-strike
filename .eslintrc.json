@@ -1,0 +1,117 @@
+{
+  "parser": "babel-eslint",
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+  "env": {
+      "browser": true
+  },
+  "extends": [
+    "airbnb-base",
+    "plugin:flowtype/recommended",
+    "plugin:react/recommended"
+  ],
+  "plugins": [
+    "flowtype",
+    "react"
+  ],
+  "rules": {
+    "react/prop-types": 0,
+    "flowtype/space-before-type-colon": [
+      2,
+      "always"
+    ],
+    "indent": [
+      2,
+      2,
+      {
+        "SwitchCase": 1,
+        "VariableDeclarator": 1
+      }
+    ],
+    "no-use-before-define": 0,
+    "comma-dangle": 0,
+    "semi": 0,
+    "max-len": [
+      1,
+      120,
+      2,
+      {
+        "ignoreUrls": true,
+        "ignoreComments": false
+      }
+    ],
+    "key-spacing": [
+      2,
+      {
+        "beforeColon": false,
+        "afterColon": true,
+        "mode": "minimum"
+      }
+    ],
+    "no-multi-spaces": 0,
+    "space-before-function-paren": 0,
+    "spaced-comment": 0,
+    "no-param-reassign": [
+      2,
+      {
+        "props": true
+      }
+    ],
+    "dot-location": [
+      2,
+      "property"
+    ],
+    "quotes": [
+      2,
+      "single",
+      {
+        "avoidEscape": true,
+        "allowTemplateLiterals": true
+      }
+    ],
+    "key-spacing": [
+      2,
+      {
+        "mode": "minimum"
+      }
+    ],
+    "no-mixed-operators": 0,
+    "no-unneeded-ternary": 2,
+    "prefer-template": 2,
+    "import/named": 2,
+    "object-property-newline": 0,
+    "import/prefer-default-export": 0,
+    "class-methods-use-this": 0,
+    "no-plusplus": 0,
+    "arrow-parens": 0,
+    "prefer-rest-params": 0,
+    "no-case-declarations": 0,
+    "newline-per-chained-call": 0,
+    "arrow-body-style": 0,
+    "lines-around-directive": 0,
+    "import/first": 0,
+    "import/extensions": 0,
+    "no-lonely-if": 0,
+    "operator-assignment": 0,
+    "no-prototype-builtins": 0,
+    "import/newline-after-import": 0,
+    "no-restricted-syntax": 0,
+    "no-bitwise": 0,
+    "no-underscore-dangle": 0,
+    "no-continue": 0,
+    "no-confusing-arrow": 0,
+    "key-spacing": 0,
+    "new-parens": 0,
+    "no-nested-ternary": 0,
+    "no-console": 0
+  },
+  "globals": {
+    "__DEV__": false,
+    "describe": true,
+    "expect": true,
+    "it": true
+  }
+}
