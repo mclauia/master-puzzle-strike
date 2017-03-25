@@ -1,6 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
+import { getGameRecordsList } from '../../reducers/stats';
+
 import { MicroGameSummary } from './summary';
 import { pluralize } from '../common';
 import { setupNewSeries, continueSeries } from '../../actions';
@@ -19,13 +21,13 @@ function NewSeriesPrompt(props) {
 }
 
 function ContinueSeriesPrompt(props) {
-  if (!props.gameRecords.length) return null;
+  if (!props.gameRecordsList.length) return null;
 
-  const previousGameRecord = props.gameRecords[props.gameRecords.length - 1];
+  const previousGameRecord = props.gameRecordsList[props.gameRecordsList.length - 1];
   const winner = previousGameRecord.players.find(player => player.name === previousGameRecord.winner);
   const loser = previousGameRecord.players.find(player => player.name !== previousGameRecord.winner);
 
-  const seriesRecords = props.gameRecords.filter(record => record.seriesId === previousGameRecord.seriesId);
+  const seriesRecords = props.gameRecordsList.filter(record => record.seriesId === previousGameRecord.seriesId);
 
   return (
     <div>
@@ -102,14 +104,14 @@ function NewGame(props) {
       </div>
       <div className="panel-body">
         <NewSeriesPrompt setupNewSeries={props.setupNewSeries} />
-        <ContinueSeriesPrompt gameRecords={props.gameRecords} continueSeries={props.continueSeries}/>
+        <ContinueSeriesPrompt gameRecordsList={props.gameRecordsList} continueSeries={props.continueSeries}/>
       </div>
     </div>
   );
 }
 
 export default connect((state) => ({
-  gameRecords: state.stats.gameRecords,
+  gameRecordsList: getGameRecordsList(state),
   gameInSetup: state.app.gameInSetup,
   gameInProgress: state.app.gameInProgress,
 }), {

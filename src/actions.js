@@ -24,7 +24,7 @@ export function continueSeries() {
   return (dispatch, getState) => {
     const state = getState();
 
-    const previousRecord = state.stats.gameRecords[state.stats.gameRecords.length - 1];
+    const previousRecord = state.stats.gameRecords[Object.keys(state.stats.gameRecords).pop()];
 
     dispatch({
       type: 'CONTINUE_SERIES',

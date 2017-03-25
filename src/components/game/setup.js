@@ -69,6 +69,7 @@ function GameSetup(props) {
       <BankSwap
         chooseReplacementBankStack={props.chooseReplacementBankStack}
         chooseRemovedBankStack={props.chooseRemovedBankStack}
+        declineRemoveBankStack={props.declineRemoveBankStack}
         reselectBank={reselectBank}
         currentBank={currentBank}
         removedBankStack={removedBankStack} />

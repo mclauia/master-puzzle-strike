@@ -1,3 +1,5 @@
+import { createSelector } from 'reselect';
+
 const INITIAL_STATE = {
   gameRecords: [],
   serieses: {}
@@ -6,11 +8,9 @@ const INITIAL_STATE = {
 export default function(state = INITIAL_STATE, action) {
   switch (action.type) {
     case 'NEW_RECORDS':
-      const records = action.payload;
-
       return {
         ...state,
-        gameRecords: records ? Object.keys(records).map(key => records[key]) : []
+        gameRecords: action.payload
       };
 
     case 'NEW_SERIESES':
@@ -25,3 +25,8 @@ export default function(state = INITIAL_STATE, action) {
       return state;
   }
 }
+
+export const getGameRecordsList = createSelector(
+  (state) => state.stats.gameRecords,
+  (records) => records ? Object.values(records) : []
+)

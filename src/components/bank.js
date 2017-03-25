@@ -28,6 +28,7 @@ export function BankSwap(props) {
       <BankSwapRemoval
         chooseRemovedBankStack={props.chooseRemovedBankStack}
         removedBankStack={props.removedBankStack}
+        declineRemoveBankStack={props.declineRemoveBankStack}
         currentBank={props.currentBank} />
       <BankSwapReplacement
         chooseReplacementBankStack={props.chooseReplacementBankStack}

@@ -1,7 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-// @todo commonize these locations
+import { getGameRecordsList } from '../../reducers/stats';
+
 import { Bank } from '../bank';
 import { pluralize } from '../common';
 import { MicroGameSummary } from '../game/summary';
@@ -9,39 +10,17 @@ import { MicroGameSummary } from '../game/summary';
 import { CHARACTERS } from '../../config/gamedata';
 
 /************ GAME HISTORY *************/
-function GameStats({ gameRecords }) {
+function GameStats({ gameRecords, gameRecordsList, serieses }) {
   return (
     <div>
       <h2>Game Stats</h2>
 
-      <PlayerStats playerName="Ian" records={gameRecords} />
-      <PlayerStats playerName="Dave" records={gameRecords} />
+      <PlayerStats playerName="Ian" records={gameRecordsList} />
+      <PlayerStats playerName="Dave" records={gameRecordsList} />
 
       <hr />
 
-      <GameRecords records={gameRecords}/>
-    </div>
-  )
-}
-
-function GameRecords({ records }) {
-  return (
-    <div>
-        <h2>Game History</h2>
-        {records.map((record, index) => (
-          <GameRecord key={index} record={record} />
-        )).reverse()}
-    </div>
-  )
-}
-
-function GameRecord({ record }) {
-  return (
-    <div className="well">
-      <div>
-          <MicroGameSummary record={record} />
-      </div>
-      <Bank bank={record.bank} />
+      <GameRecords records={gameRecords} serieses={serieses} />
     </div>
   )
 }
@@ -50,7 +29,7 @@ function PlayerStats({ playerName, records }) {
   return (
     <div className="panel panel-default">
       <div className="panel-heading">
-          <h3 className="panel-title">Player Stats: {playerName}</h3>
+        <h3 className="panel-title">Player Stats: {playerName}</h3>
       </div>
       <div className="panel-body">
         <OverallWinrate playerName={playerName} records={records} />
@@ -71,9 +50,8 @@ function OverallWinrate({ playerName, records }) {
     <div>
       <h4>Overall Winrate</h4>
       <div className="progress">
-        <div className={
-          `progress-bar progress-bar-${winRateColor(winRate)}`
-        } role="progressbar" style={{ width: `${winRate}%` }}>
+        <div className={`progress-bar progress-bar-${winRateColor(winRate)}`}
+          role="progressbar" style={{ width: `${winRate}%` }}>
           {`${winRate}%`}
           {`(${wins} W / ${records.length - wins} L)`}
         </div>
@@ -167,6 +145,72 @@ function CharacterUsageRow({ character, wins, losses, maxCharacterGames }) {
   )
 }
 
+function GameRecords({ records, serieses }) {
+  const GameRecordsBySeries = Object.values(serieses).map((series, seriesIndex) => {
+    const seriesRecords = Object.values(series.games).map(gameId => records[gameId]);
+
+    const player1 = seriesRecords[0].players[0];
+    const player2 = seriesRecords[0].players[1];
+
+    const player1wins = seriesRecords.filter(record => record.winner === player1.name).length;
+    const player2wins = seriesRecords.length - player1wins;
+
+    const seriesLeader = player1wins > player2wins ? player1.name : player2.name;
+    const leadBy = Math.abs(player1wins - player2wins);
+
+    return (
+      <div key={seriesIndex} className="panel panel-default">
+        <div className="panel-heading">
+            <h3 className="panel-title">{seriesRecords.length}-Game Series</h3>
+        </div>
+        <div className="panel-body">
+          { seriesIndex === Object.keys(serieses).length - 1 ? (
+            <p>This series can still be continued and may be in progress. <br />
+              { leadBy ? (
+                `${seriesLeader} is winning by ${leadBy} game${pluralize(leadBy)}.`
+              ) : (
+                `This series is tied.`
+              )}
+            </p>
+          ) : (
+            <p>
+              { leadBy ? (
+                `${seriesLeader} won this series by ${leadBy} game${pluralize(leadBy)}.`
+              ) : (
+                `This series was a draw.`
+              )}
+            </p>
+          )}
+          {seriesRecords.map((record, recordIndex) => (
+            <GameRecord key={recordIndex} record={record} />
+          ))}
+        </div>
+      </div>
+    )
+  }).reverse();
+
+  return (
+    <div>
+      <h2>Game History</h2>
+      <p className="help-block">Series in reverse chronological order, games per series in chronological order</p>
+      {GameRecordsBySeries}
+    </div>
+  )
+}
+
+function GameRecord({ record }) {
+  return (
+    <div className="well">
+      <div>
+        <MicroGameSummary record={record} />
+      </div>
+      <Bank bank={record.bank} />
+    </div>
+  )
+}
+
 export default connect((state) => ({
-  gameRecords: state.stats.gameRecords
+  gameRecordsList: getGameRecordsList(state),
+  gameRecords: state.stats.gameRecords,
+  serieses: state.stats.serieses
 }), {})(GameStats);
