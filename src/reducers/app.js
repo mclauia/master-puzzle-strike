@@ -1,4 +1,4 @@
-import { BANK } from '../gamedata';
+import { BANK } from '../config/gamedata';
 
 const INITIAL_STATE = {
   gameInSetup: false,

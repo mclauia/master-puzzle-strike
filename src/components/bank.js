@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { BANK } from '../gamedata';
+import { BANK } from '../config/gamedata';
 
 import { chipClass } from './common';
 

@@ -1,18 +1,17 @@
 import React from 'react';
 import { render } from 'react-dom';
-import App from './components/app';
+
+import { Provider } from 'react-redux';
 
 import { createBrowserHistory } from 'history';
 import { Router, Route } from 'react-router'
 import { syncHistoryWithStore } from 'react-router-redux'
 
-import configureStore from './store';
-
-import { Provider } from 'react-redux';
-
-import { onGamesUpdate, onSeriesUpdate } from './firebase';
-
+import configureStore from './config/store';
+import { onGamesUpdate, onSeriesUpdate } from './config/firebase';
 import { newRecords, newSerieses } from './actions';
+
+import App from './components/app';
 
 const MAIN_ROOT = document.getElementById('main');
 

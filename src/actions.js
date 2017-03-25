@@ -1,4 +1,4 @@
-import { pushNewGameRecord } from './firebase';
+import { pushNewGameRecord } from './config/firebase';
 
 export function newRecords(records) {
   return {

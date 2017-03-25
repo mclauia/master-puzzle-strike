@@ -10,8 +10,8 @@ firebase.initializeApp({
 });
 
 const DB = firebase.database();
-const GAMES = 'gamesTest';
-const SERIES = 'seriesTest';
+const GAMES = 'games';
+const SERIES = 'series';
 
 const fireGames = DB.ref(`${GAMES}/`);
 const fireSeries = DB.ref(`${SERIES}/`);

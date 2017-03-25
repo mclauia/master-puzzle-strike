@@ -6,7 +6,7 @@ import { Bank } from '../bank';
 import { pluralize } from '../common';
 import { MicroGameSummary } from '../game/summary';
 
-import { CHARACTERS } from '../../gamedata';
+import { CHARACTERS } from '../../config/gamedata';
 
 /************ GAME HISTORY *************/
 function GameStats({ gameRecords }) {
@@ -103,7 +103,7 @@ function CharacterUsage({ playerName, records }) {
         0
       ),
       losses: playerRecords.reduce(
-        (count, record) => !wasWinnerAsCharacter(playerName, character, record) ? count + 1 : count,
+        (count, record) => wasLoserAsCharacter(playerName, character, record) ? count + 1 : count,
         0
       )
     }))
@@ -139,11 +139,16 @@ function wasWinnerAsCharacter(playerName, character, record) {
   return playerCharacter === character && playerName === record.winner
 }
 
+function wasLoserAsCharacter(playerName, character, record) {
+  const playerCharacter = record.players.find(player => player.name === playerName).character;
+  return playerCharacter === character && playerName !== record.winner
+}
+
 function CharacterUsageRow({ character, wins, losses, maxCharacterGames }) {
   const totalCharacterGames = wins + losses;
 
-  const winRate = (wins / maxCharacterGames * 100).toFixed(2);
-  const lossRate = (losses / maxCharacterGames * 100).toFixed(2);
+  const winRate = wins ? (wins / maxCharacterGames * 100).toFixed(2) : 0;
+  const lossRate = losses ? (losses / maxCharacterGames * 100).toFixed(2) : 0;
 
   if (!totalCharacterGames) return null;
 
@@ -151,11 +156,11 @@ function CharacterUsageRow({ character, wins, losses, maxCharacterGames }) {
     <div>
       <h5>{character} <small>{totalCharacterGames} game{pluralize(totalCharacterGames)} played</small></h5>
       <div className="progress">
-        <div className="progress-bar progress-bar-success" style={{ width: `${winRate}%` }}>
-          {`${winRate}% (${wins} W)`}
+        <div className="progress-bar progress-bar-success" role="progressbar" style={{ width: `${winRate}%` }}>
+          {winRate > 0 ? `${winRate}% (${wins} W)` : null}
         </div>
-        <div className="progress-bar progress-bar-danger" style={{ width: `${lossRate}%` }}>
-          {`${lossRate}% (${losses} L)`}
+        <div className="progress-bar progress-bar-danger" role="progressbar" style={{ width: `${lossRate}%` }}>
+          {lossRate > 0 ? `${lossRate}% (${losses} L)` : null}
         </div>
       </div>
     </div>

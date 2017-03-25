@@ -1,4 +1,4 @@
-import { RED, BLUE, PURPLE, BROWN, MULTI, GOLD } from '../colors';
+import { RED, BLUE, PURPLE, BROWN, MULTI, GOLD } from '../constants/colors';
 
 export function chipClass(color) {
   switch (color) {
