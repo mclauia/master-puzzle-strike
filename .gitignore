@@ -2,6 +2,6 @@ node_modules
 npm-debug.log
 
 # build artifacts
-index.html
 assets/index.js
 assets/index.js.map
+index.html
